@@ -24,12 +24,14 @@ const MainPageContent: React.FC = () => {
 
     return (
         <VStack alignItems="center" justifyContent="center" height='100vh' spacing={10}>
-            <Image boxSize='20vh' src={logoUrl} alt="logo"/>
-            <Text fontSize='3vh' noOfLines={[1, 2, 3]} className="text-italic">{quote}</Text>
             <HStack spacing={10} className="text">
-                <Button variant="solid" colorScheme="facebook">Autentificare</Button>
-                <Button variant="outline" colorScheme="facebook">Înregistrare</Button>
+                <Image boxSize='20vh' src={logoUrl} alt="logo"/>‘
+                <VStack spacing={3}>
+                    <Text fontSize='2.5vh' noOfLines={[1, 2, 3]} className="text-italic">Secretariat acs.pub.ro</Text>
+                    <Button variant="solid" colorScheme="facebook">Autentificare</Button>
+                </VStack>
             </HStack>
+            <Text fontSize='3vh' noOfLines={[1, 2, 3]} className="text-italic">{quote}</Text>
         </VStack>
     );
 }
