@@ -11,13 +11,11 @@ const App: React.FC = () => {
   const [btnIsClicked, setButtonClicked] = useState<boolean>(false);
 
   return (
-    <>
-     <mainPageContext.Provider value={setButtonClicked}>
+    <mainPageContext.Provider value={setButtonClicked}>
         <Background />
         {!btnIsClicked && <MainPageContent />}
         {btnIsClicked && <AuthForm />}
-     </mainPageContext.Provider>
-    </>
+    </mainPageContext.Provider>
   );
 }
 
