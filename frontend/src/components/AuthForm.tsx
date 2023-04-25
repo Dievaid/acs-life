@@ -14,6 +14,7 @@ import "../stylesheets/AuthForm.css";
 import { mainPageContext } from "./Contexts";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../Firebase";
+import { useNavigate } from "react-router-dom";
 
 const validateEmail = (email: string) => {
     // eslint-disable-next-line
@@ -26,11 +27,11 @@ const AuthForm: React.FC = () => {
     const [isValidEmail, setValidEmail] = useState<boolean>(false);
 
     const setFormAppearance = useContext(mainPageContext);
+    const navigate = useNavigate();
 
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => console.log(userCredentials))
-            .then(_ => window.location.replace("/admin-panel"))
+            .then(_ => navigate("/admin-panel"))
             .catch(err => console.error(err));
     }
     
