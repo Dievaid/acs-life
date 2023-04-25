@@ -9,7 +9,6 @@ import { TimetablesView } from "./TimetablesView";
 
 const AdminPanel: React.FC = () => {
     const generateSelectedSection = (view: ViewType) => {
-        console.log(view);
         switch (view) {
             case "home":
                 return <HomeView />
@@ -22,7 +21,7 @@ const AdminPanel: React.FC = () => {
             case "timetables":
                 return <TimetablesView />
         }
-        return <></>
+        return <></>;
     }
 
     const view = useContext<ViewType>(RenderPageContext);

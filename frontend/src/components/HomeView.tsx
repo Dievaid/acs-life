@@ -1,6 +1,6 @@
 import {
     VStack,
-    Text
+    Text,
 } from "@chakra-ui/react";
 
 export const HomeView: React.FC = () => {
