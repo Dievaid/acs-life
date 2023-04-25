@@ -6,6 +6,8 @@ import SidebarWithHeader from "./SidebarWithHeader";
 import { StudentsView } from "./StudentsView";
 import { TicketsView } from "./TicketsView";
 import { TimetablesView } from "./TimetablesView";
+import { User } from "firebase/auth";
+import { AuthContext } from "./AuthProvider";
 
 const AdminPanel: React.FC = () => {
     const generateSelectedSection = (view: ViewType) => {
@@ -25,12 +27,19 @@ const AdminPanel: React.FC = () => {
     }
 
     const view = useContext<ViewType>(RenderPageContext);
+    const userData = useContext<User | null>(AuthContext);
 
     const [selectedView, setSelectedView] = useState<JSX.Element>(<></>);
 
     useEffect(() => {
         setSelectedView(generateSelectedSection(view));
     }, [view]);
+
+    useEffect(() => {
+        if (userData === null) {
+            window.location.replace("/");
+        }
+    }, [userData]);
 
     return (
         <SidebarWithHeader>
