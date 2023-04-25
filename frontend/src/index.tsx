@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import AdminPanel from './components/AdminPanel';
 import AuthProvider from './components/AuthProvider';
+import { ViewTypeProvider } from './components/ViewTypeProvider';
 
 const router = createBrowserRouter([
   {
@@ -30,7 +31,9 @@ root.render(
   <ChakraProvider>
       <React.StrictMode>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <ViewTypeProvider>
+            <RouterProvider router={router} />
+          </ViewTypeProvider>
         </AuthProvider>
       </React.StrictMode>
   </ChakraProvider>

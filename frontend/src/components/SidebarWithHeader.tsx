@@ -1,4 +1,9 @@
-import React, { ReactNode, useEffect, useContext, useState } from 'react';
+import React, {
+  ReactNode,
+  useEffect,
+  useContext,
+  useState
+} from 'react';
 
 import {
   IconButton,
@@ -22,35 +27,40 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Image
 } from '@chakra-ui/react';
 
 import {
   FiHome,
-  FiTrendingUp,
-  FiCompass,
-  FiStar,
   FiSettings,
   FiMenu,
   FiBell,
   FiChevronDown,
 } from 'react-icons/fi';
+
+import {
+  FaTicketAlt,
+  FaCalendarAlt
+} from 'react-icons/fa';
+
+import {
+  BsFillPeopleFill
+} from 'react-icons/bs';
+
 import { IconType } from 'react-icons';
 import { AuthContext } from './AuthProvider';
 import { auth, db } from '../Firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { SetPageContext } from './Contexts';
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
+  callback: () => any
 }
-const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', icon: FiHome },
-  { name: 'Trending', icon: FiTrendingUp },
-  { name: 'Explore', icon: FiCompass },
-  { name: 'Favourites', icon: FiStar },
-  { name: 'Settings', icon: FiSettings },
-];
+
+const logoUrl: string = "http://swarm.cs.pub.ro/~razvan/logos/acs-logos/acs-logo-image-only.png";
 
 export default function SidebarWithHeader({
   children,
@@ -91,6 +101,16 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+  const setView = useContext(SetPageContext);
+
+  const LinkItems: Array<LinkItemProps> = [
+    { name: 'Home', icon: FiHome, callback: () => setView("home") },
+    { name: 'Orare', icon: FaCalendarAlt, callback: () => setView("timetables") },
+    { name: 'Studenți', icon: BsFillPeopleFill, callback: () => setView("students") },
+    { name: 'Tichete', icon: FaTicketAlt, callback: () => setView("tickets") },
+    { name: 'Setări', icon: FiSettings, callback: () => setView("settings") },
+  ];
+
   return (
     <Box
       transition="3s ease"
@@ -102,13 +122,11 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       h="full"
       {...rest}>
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
-        </Text>
+        <Image boxSize='60px' src={logoUrl} alt="logo"/>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
+        <NavItem key={link.name} icon={link.icon} onClick={link.callback}>
           {link.name}
         </NavItem>
       ))}
@@ -122,6 +140,7 @@ interface NavItemProps extends FlexProps {
 }
 const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   return (
+    // @ts-ignore
     <Link href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
       <Flex
         align="center"
@@ -174,6 +193,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   return (
     <Flex
+      // @ts-ignore]
       ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
       height="20"
@@ -191,13 +211,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         icon={<FiMenu />}
       />
 
-      <Text
+      <Image 
+        boxSize='60px' 
         display={{ base: 'flex', md: 'none' }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold">
-        Logo
-      </Text>
+        src={logoUrl} alt="logo"
+      />
+      
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton
@@ -235,9 +254,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <MenuList
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}>
-              <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
+              <MenuItem>Profil</MenuItem>
               <MenuDivider />
               <MenuItem
                 onClick={() => {
@@ -245,7 +262,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   window.location.replace("/");
                 }}
               >
-                Sign out
+                Deconectează-te
               </MenuItem>
             </MenuList>
           </Menu>
