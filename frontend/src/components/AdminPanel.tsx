@@ -6,8 +6,9 @@ import SidebarWithHeader from "./SidebarWithHeader";
 import { StudentsView } from "./StudentsView";
 import { TicketsView } from "./TicketsView";
 import { TimetablesView } from "./TimetablesView";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
+import { User } from "firebase/auth";
 
 const AdminPanel: React.FC = () => {
     const generateSelectedSection = (view: ViewType) => {
@@ -30,8 +31,8 @@ const AdminPanel: React.FC = () => {
 
     const [selectedView, setSelectedView] = useState<JSX.Element>(<></>);
 
-    const navigate = useNavigate();
-    const user = useContext(AuthContext);
+    const navigate: NavigateFunction = useNavigate();
+    const user: User | null = useContext(AuthContext);
 
     useEffect(() => {
         if (user === null) {

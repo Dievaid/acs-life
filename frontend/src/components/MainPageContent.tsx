@@ -24,7 +24,11 @@ const MainPageContent: React.FC = () => {
         fetch(apiUrl, headerObject).then(res => res.json()).then(data => {
             setQuote(data[0].quote)
             setTimeout(() => setLoading(false), 1000);
-        }).catch(err => console.error(err));
+        }).catch(err => { 
+            console.error(err);
+            setQuote("There is no day better than tomorrow");
+            setTimeout(() => setLoading(false), 1000);
+        });
         return () => {}
     }, []);
 
