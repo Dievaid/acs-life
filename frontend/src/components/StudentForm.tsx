@@ -42,7 +42,7 @@ export const StudentForm: React.FC<FormProps> = (props) => {
                 .then(_ => props.callback(false))
                 .catch(err => console.error(err));
         }
-    })
+    });
 
     return (
         // @ts-ignore

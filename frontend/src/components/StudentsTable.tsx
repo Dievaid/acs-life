@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 
 import { Student } from "./StudentsView";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface StudentsTableProps {
     students: Array<Student>,
@@ -18,7 +18,8 @@ interface StudentsTableProps {
     setDeleteStudents: (value: Array<Student>) => void,
     columns: Array<String>,
     deleteState: boolean,
-    setDeleteState: (value: boolean) => void
+    setDeleteState: (value: boolean) => void,
+    setDeleteBtnCaption: (value: string) => void
 }
 
 interface StudentNodeProps {
@@ -26,7 +27,7 @@ interface StudentNodeProps {
     deleteStudents: Array<Student>,
     setDeleteStudents: (value: Array<Student>) => void,
     idx: number,
-    deleteState: boolean
+    deleteState: boolean,
 }
 
 const StudentNode : React.FC<StudentNodeProps> = (props) => {
@@ -73,6 +74,18 @@ export const StudentsTable: React.FC<StudentsTableProps> = (props: StudentsTable
             />
         );
     }
+
+    useEffect(() => {
+        if (props.deleteState) {
+            if (props.deleteStudents.length > 0) {
+                props.setDeleteBtnCaption("Confirmare ștergere");
+            } else {
+                props.setDeleteBtnCaption("Ieșire ștergere");
+            }
+        } else {
+            props.setDeleteBtnCaption("Ștergere studenți");
+        }
+    }, [props.deleteStudents, props.deleteState]);
 
     return (
         // @ts-ignore

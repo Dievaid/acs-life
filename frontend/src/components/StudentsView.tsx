@@ -42,6 +42,8 @@ export const StudentsView: React.FC = () => {
     const [signUpFormShow, setSignUpFormShow] = useState<boolean>(false);
     const [deleteState, setDeleteState] = useState<boolean>(false);
 
+    const [deleteBtnCaption, setDeleteBtnCaption] = useState<string>("Șterge studenți");
+
     const fetchStudents = () => {
         let students: Array<Student> = [];
         getDocs(studentsQuery)
@@ -65,7 +67,8 @@ export const StudentsView: React.FC = () => {
             .then(_ => {
                 if (id !== null) {
                     console.log(id);
-                    deleteDoc(doc(db, "/studenti", id))                }
+                    deleteDoc(doc(db, "/studenti", id))
+                }
             });
     }
 
@@ -102,7 +105,7 @@ export const StudentsView: React.FC = () => {
                             }
 
                         }}
-                    >Șterge studenți</Button>
+                    >{deleteBtnCaption}</Button>
                     <Button colorScheme="blue">Modifică student</Button>
                     {signUpFormShow && 
                         <StudentForm 
@@ -120,6 +123,7 @@ export const StudentsView: React.FC = () => {
                     setDeleteStudents={setDeleteStudents}
                     deleteState={deleteState}
                     setDeleteState={setDeleteState}
+                    setDeleteBtnCaption={setDeleteBtnCaption}
                 />
             }
         </VStack>

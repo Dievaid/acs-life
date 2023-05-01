@@ -5,7 +5,8 @@ import {
     FormLabel, 
     Input, 
     VStack,
-    CloseButton
+    CloseButton,
+    Text
 } from "@chakra-ui/react";
 
 import { useContext, useState } from "react";
@@ -25,6 +26,7 @@ const AuthForm: React.FC = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isValidEmail, setValidEmail] = useState<boolean>(false);
+    const [isDataInvalid, setDataInvalid] = useState<boolean>(false);
 
     const setFormAppearance = useContext(mainPageContext);
     const navigate = useNavigate();
@@ -32,10 +34,14 @@ const AuthForm: React.FC = () => {
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(_ => navigate("/admin-panel"))
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(err);
+                setDataInvalid(true);
+            });
     }
     
     return (
+        // @ts-ignore
         <Container className="form" maxW='30vw' minW='170px' minH='350px'>
             <CloseButton 
                 className="closeBtn"
@@ -50,13 +56,17 @@ const AuthForm: React.FC = () => {
                         onChange={(e) => {
                             setEmail(e.target.value);
                             setValidEmail(validateEmail(email));
+                            setDataInvalid(false);
                         }}
                     />
                     <FormLabel>Parola</FormLabel>
                     <Input
                         type='password'
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setDataInvalid(false);
+                        }}
                     />
                     <Button 
                         disabled={!isValidEmail}
@@ -66,6 +76,7 @@ const AuthForm: React.FC = () => {
                     >
                         Autentificare
                     </Button>
+                    {isDataInvalid && <Text pb={5} color={"red"}>Datele introduse sunt invalide</Text>}
                 </VStack>
             </FormControl>
         </Container>
