@@ -11,9 +11,11 @@ import {
 
 import { useContext, useState } from "react";
 
+import emailjs from "emailjs-com";
+
 import "../stylesheets/AuthForm.css";
 import { mainPageContext } from "./Contexts";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../Firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -27,13 +29,38 @@ const AuthForm: React.FC = () => {
     const [password, setPassword] = useState<string>("");
     const [isValidEmail, setValidEmail] = useState<boolean>(false);
     const [isDataInvalid, setDataInvalid] = useState<boolean>(false);
+    
+    let otp: string = ""
+
+    const sendCodeTo = (email: string) => {
+        let otp_code = new String(Math.floor(100000 + Math.random() * 100000));
+        let data = {
+            user_email: email,
+            otp_code: otp_code
+        }
+        console.log(otp_code.toString());
+        otp = otp_code.toString();
+        return emailjs.send("service_gkhhhwj","template_quufkg5", data, "HBgT6C9tOLxagn0Cz");
+    }
 
     const setFormAppearance = useContext(mainPageContext);
     const navigate = useNavigate();
 
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
-            .then(_ => navigate("/admin-panel"))
+            .then(_ => {
+                sendCodeTo(email).then(_ => {
+                    let input_code = prompt("Tastează codul primit pe email");
+                    if (input_code === otp) { 
+                        navigate("/admin-panel");
+                    } else {
+                        throw Error(`OTP greșit`);
+                    }
+                }).catch(err=> {
+                    console.error(err);
+                    signOut(auth);
+                });
+            })
             .catch(err => {
                 console.error(err);
                 setDataInvalid(true);
