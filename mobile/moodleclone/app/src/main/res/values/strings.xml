@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">moodleclone</string>
+    <string name="Moodle">Moodle</string>
+    <string name="logout">LOGOUT</string>
+    <string name="newmessage">Verificare mesaj A2P</string>
+    <string name="verificare_otp">Introdu codul primit prin SMS la numarul asignat contului tau</string>
+    <string name="nu_ai_primit_codul">Nu ai primit codul?</string>
+    <string name="retrimite_codul">Retrimite codul</string>
+    <string name="verifica">Verifica</string>
+    <string name="inapoi">Inapoi</string>
+    <string name="tab_3">Tab 3</string>
+    <string name="tab_2">Tab 2</string>
+    <string name="tab_1">Tab 1</string>
+</resources>

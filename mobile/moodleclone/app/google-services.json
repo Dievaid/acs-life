@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "830216192481",
+    "project_id": "testproject-d7413",
+    "storage_bucket": "testproject-d7413.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830216192481:android:ccca237ede5dd3347c92a0",
+        "android_client_info": {
+          "package_name": "com.example.moodleclone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830216192481-l6r1uijtksas96nr6t79cr47vsv7u4ck.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPWsxAe-yZ1Ifvl-2sIHVdtx_nW0K6b58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830216192481-l6r1uijtksas96nr6t79cr47vsv7u4ck.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
