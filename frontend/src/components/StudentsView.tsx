@@ -1,11 +1,10 @@
 import {
     Button,
     HStack,
-    Input,
     VStack,
 } from "@chakra-ui/react";
 import { StudentsTable } from "./StudentsTable";
-import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+import { collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../Firebase";
 import { useEffect, useState } from "react";
 import { WiFiLoader } from "./WiFiLoader";
@@ -57,19 +56,14 @@ export const StudentsView: React.FC = () => {
 
     useEffect(fetchStudents, []);
 
-    const handleDeleteStudent = (email: string) => {
-        let q = query(collection(db, "/studenti"), where("email", "==", email))
-        let id: string | null = null;
-        getDocs(q)
-            .then(docs => docs.forEach(doc => {
-               id = doc.id;
-            }))
-            .then(_ => {
-                if (id !== null) {
-                    console.log(id);
-                    deleteDoc(doc(db, "/studenti", id))
-                }
-            });
+    const handleDeleteStudents = () => {
+        let q = query(collection(db, "/studenti"), 
+            where("email", "in", deleteStudents.map(stud => stud.email)));
+        getDocs(q).then(
+            docs => docs.forEach(doc => {
+                deleteDoc(doc.ref).then(_ => setDeleteStudents([]));
+            })
+        );
     }
 
     return (
@@ -95,11 +89,7 @@ export const StudentsView: React.FC = () => {
                                         copyStudents = copyStudents.filter(stud2 => stud1.email !== stud2.email);
                                     });
                                     setStudents(copyStudents);
-
-                                    deleteStudents.forEach(stud => {
-                                        handleDeleteStudent(stud.email);
-                                    });
-                                    setDeleteStudents([]);
+                                    handleDeleteStudents();
                                 }
                                 setDeleteState(false);
                             }
