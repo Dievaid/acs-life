@@ -15,3 +15,5 @@ export const SetPageContext = React
 
 export const mainPageContext = React
     .createContext<React.Dispatch<React.SetStateAction<boolean>>>(() => null);
+
+export const updateStudentsContext = React.createContext<boolean>(false);

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { WiFiLoader } from "./WiFiLoader";
 import { StudentForm } from "./StudentForm";
 import { RightSlideAnimation } from "../animations/RightSlideAnimation";
+import { updateStudentsContext } from "./Contexts";
 
 export interface Student {
     class: string,
@@ -41,8 +42,11 @@ export const StudentsView: React.FC = () => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const [signUpFormShow, setSignUpFormShow] = useState<boolean>(false);
     const [deleteState, setDeleteState] = useState<boolean>(false);
+    const [updateState, setUpdateState] = useState<boolean>(false);
+    const [shouldUpdateData, setShouldUpdateData] = useState<boolean>(false);
 
     const [deleteBtnCaption, setDeleteBtnCaption] = useState<string>("Șterge studenți");
+    const [updateBtnCaption, setUpdateBtnCaption] = useState<string>("Modifică studenți");
 
     const fetchStudents = () => {
         let students: Array<Student> = [];
@@ -67,6 +71,24 @@ export const StudentsView: React.FC = () => {
         );
     }
 
+    useEffect(() => {
+        if (deleteState) {
+            if (deleteStudents.length > 0) {
+                setDeleteBtnCaption("Confirmare ștergere");
+            } else {
+                setDeleteBtnCaption("Ieșire ștergere");
+            }
+        } else {
+            setDeleteBtnCaption("Ștergere studenți");
+            if (updateState) {
+                setUpdateBtnCaption("Confirmare modificări");
+            } else {
+                setUpdateBtnCaption("Modifică studenți");
+            }
+        }
+    }, [deleteStudents, deleteState, updateState]);
+
+
     return (
         // @ts-ignore
         <VStack>
@@ -83,6 +105,7 @@ export const StudentsView: React.FC = () => {
                         <Button 
                             colorScheme="red"
                             onClick={() => {
+                                if (updateState) return;
                                 if (!deleteState) {
                                     setDeleteState(true);
                                 } else {
@@ -99,7 +122,19 @@ export const StudentsView: React.FC = () => {
 
                             }}
                         >{deleteBtnCaption}</Button>
-                        <Button colorScheme="blue">Modifică student</Button>
+                        <Button colorScheme="blue"
+                            onClick={() => {
+                                if (deleteState) return;
+                                if (updateState) {
+                                    setShouldUpdateData(true);
+                                } else {
+                                    setShouldUpdateData(false);
+                                }
+                                setUpdateState(!updateState);
+                            }}
+                        >
+                            {updateBtnCaption}
+                        </Button>
                         {signUpFormShow && 
                             <StudentForm 
                                 callback={setSignUpFormShow}
@@ -107,15 +142,16 @@ export const StudentsView: React.FC = () => {
                                 setStudents={setStudents}
                                 />}
                     </HStack>
-                    <StudentsTable
-                        students={students}
-                        columns={tableColumns}
-                        deleteStudents={deleteStudents}
-                        setDeleteStudents={setDeleteStudents}
-                        deleteState={deleteState}
-                        setDeleteState={setDeleteState}
-                        setDeleteBtnCaption={setDeleteBtnCaption}
-                    />
+                    <updateStudentsContext.Provider value={shouldUpdateData}>
+                        <StudentsTable
+                            students={students}
+                            columns={tableColumns}
+                            deleteStudents={deleteStudents}
+                            setDeleteStudents={setDeleteStudents}
+                            deleteState={deleteState}
+                            updateState={updateState}
+                        />
+                    </updateStudentsContext.Provider>
                 </RightSlideAnimation>
             }
         </VStack>
