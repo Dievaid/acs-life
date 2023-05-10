@@ -49,6 +49,10 @@ const AuthForm: React.FC = () => {
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(_ => {
+                if (process.env.REACT_APP_DISABLE_OTP) {
+                    navigate("/admin-panel");
+                    return;
+                }
                 sendCodeTo(email).then(_ => {
                     let input_code = prompt("Tastează codul primit pe email");
                     if (input_code === otp) { 
