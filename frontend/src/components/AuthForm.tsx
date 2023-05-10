@@ -9,7 +9,7 @@ import {
     Text
 } from "@chakra-ui/react";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import emailjs from "emailjs-com";
 
@@ -67,6 +67,10 @@ const AuthForm: React.FC = () => {
             });
     }
     
+    useEffect(() => {
+        setValidEmail(validateEmail(email));
+    }, [email]);
+
     return (
         // @ts-ignore
         <Container className="form" maxW='30vw' minW='170px' minH='350px'>
@@ -81,8 +85,8 @@ const AuthForm: React.FC = () => {
                         type='email'
                         value={email} 
                         onChange={(e) => {
+                            e.preventDefault();
                             setEmail(e.target.value);
-                            setValidEmail(validateEmail(email));
                             setDataInvalid(false);
                         }}
                     />
@@ -91,6 +95,7 @@ const AuthForm: React.FC = () => {
                         type='password'
                         value={password}
                         onChange={(e) => {
+                            e.preventDefault();
                             setPassword(e.target.value);
                             setDataInvalid(false);
                         }}
