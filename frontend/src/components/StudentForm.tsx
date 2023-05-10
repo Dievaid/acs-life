@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import { Student } from "./StudentsView";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../Firebase";
+import { FadeInAnimation } from "../animations/FadeInAnimation";
 
 interface FormProps {
     callback: (value: any) => void;
@@ -46,21 +47,23 @@ export const StudentForm: React.FC<FormProps> = (props) => {
 
     return (
         // @ts-ignore
-        <VStack className="formstud" justifyContent={"center"} position={"absolute"} top={"15%"} minW={"400px"}>
-            <form onSubmit={formik.handleSubmit}>
-            <VStack minW={'200px'} pt={5} pb={5}>
-                <Input id="surname" placeholder="Nume" value={formik.values.surname} onChange={formik.handleChange}></Input>
-                <Input id="name" placeholder="Prenume" value={formik.values.name} onChange={formik.handleChange}></Input>
-                <Input id="cnp" placeholder="CNP" value={formik.values.cnp} onChange={formik.handleChange}></Input>
-                <Input id="phone" placeholder="Telefon" value={formik.values.phone} onChange={formik.handleChange}></Input>
-                <Input id="email" placeholder="Email" value={formik.values.email} onChange={formik.handleChange}></Input>
-                <Input id="currentYear" placeholder="An" value={formik.values.currentYear} onChange={formik.handleChange}></Input>
-                <Input id="class" placeholder="Grupa" value={formik.values.class} onChange={formik.handleChange}></Input>
-                <Input id="group" placeholder="Serie" value={formik.values.group} onChange={formik.handleChange}></Input>
-                <Button type="submit">Înscrie student</Button>
-                <CloseButton onClick={() => props.callback(false)}/>
-            </VStack>
-            </form>
+        <VStack className="formstud" justifyContent={"center"} position={"absolute"} top={"20vh"} minW={"400px"}>
+            <FadeInAnimation duration={1}>
+                <form onSubmit={formik.handleSubmit}>
+                <VStack minW={'200px'} pt={5} pb={5}>
+                    <Input id="surname" placeholder="Nume" value={formik.values.surname} onChange={formik.handleChange}></Input>
+                    <Input id="name" placeholder="Prenume" value={formik.values.name} onChange={formik.handleChange}></Input>
+                    <Input id="cnp" placeholder="CNP" value={formik.values.cnp} onChange={formik.handleChange}></Input>
+                    <Input id="phone" placeholder="Telefon" value={formik.values.phone} onChange={formik.handleChange}></Input>
+                    <Input id="email" placeholder="Email" value={formik.values.email} onChange={formik.handleChange}></Input>
+                    <Input id="currentYear" placeholder="An" value={formik.values.currentYear} onChange={formik.handleChange}></Input>
+                    <Input id="class" placeholder="Grupa" value={formik.values.class} onChange={formik.handleChange}></Input>
+                    <Input id="group" placeholder="Serie" value={formik.values.group} onChange={formik.handleChange}></Input>
+                    <Button type="submit">Înscrie student</Button>
+                    <CloseButton onClick={() => props.callback(false)}/>
+                </VStack>
+                </form>
+            </FadeInAnimation>
         </VStack>
     );
 }

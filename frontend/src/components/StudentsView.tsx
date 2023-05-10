@@ -9,6 +9,7 @@ import { db } from "../Firebase";
 import { useEffect, useState } from "react";
 import { WiFiLoader } from "./WiFiLoader";
 import { StudentForm } from "./StudentForm";
+import { RightSlideAnimation } from "../animations/RightSlideAnimation";
 
 export interface Student {
     class: string,
@@ -51,7 +52,7 @@ export const StudentsView: React.FC = () => {
                 students.push(data);
             }))
             .then(_ => setStudents(students))
-            .then(_ => setTimeout(() => setLoading(false), 1000));
+            .then(_ => setTimeout(() => setLoading(false), 500));
     }
 
     useEffect(fetchStudents, []);
@@ -71,50 +72,51 @@ export const StudentsView: React.FC = () => {
         <VStack>
             {isLoading && <WiFiLoader />}
             {!isLoading &&
-                <HStack width={'100%'} justifyContent={"space-evenly"} pt={5}>
-                    <Button 
-                        colorScheme="green" 
-                        onClick={() => setSignUpFormShow(true)}
-                    >Adaugă student
-                    </Button>
-                    <Button 
-                        colorScheme="red"
-                        onClick={() => {
-                            if (!deleteState) {
-                                setDeleteState(true);
-                            } else {
-                                if (students.length !== 0) {
-                                    let copyStudents = [...students];
-                                    deleteStudents.forEach(stud1 => {
-                                        copyStudents = copyStudents.filter(stud2 => stud1.email !== stud2.email);
-                                    });
-                                    setStudents(copyStudents);
-                                    handleDeleteStudents();
+                <RightSlideAnimation duration={1} width={"90%"}>
+                    {/* @ts-ignore */}
+                    <HStack width={'100%'} justifyContent={"space-evenly"} pt={5}>
+                        <Button 
+                            colorScheme="green" 
+                            onClick={() => setSignUpFormShow(true)}
+                        >Adaugă student
+                        </Button>
+                        <Button 
+                            colorScheme="red"
+                            onClick={() => {
+                                if (!deleteState) {
+                                    setDeleteState(true);
+                                } else {
+                                    if (deleteStudents.length !== 0) {
+                                        let copyStudents = [...students];
+                                        deleteStudents.forEach(stud1 => {
+                                            copyStudents = copyStudents.filter(stud2 => stud1.email !== stud2.email);
+                                        });
+                                        setStudents(copyStudents);
+                                        handleDeleteStudents();
+                                    }
+                                    setDeleteState(false);
                                 }
-                                setDeleteState(false);
-                            }
 
-                        }}
-                    >{deleteBtnCaption}</Button>
-                    <Button colorScheme="blue">Modifică student</Button>
-                    {signUpFormShow && 
-                        <StudentForm 
-                            callback={setSignUpFormShow}
-                            students={students}
-                            setStudents={setStudents}
-                            />}
-                </HStack>
-            }
-            {!isLoading && 
-                <StudentsTable
-                    students={students}
-                    columns={tableColumns}
-                    deleteStudents={deleteStudents}
-                    setDeleteStudents={setDeleteStudents}
-                    deleteState={deleteState}
-                    setDeleteState={setDeleteState}
-                    setDeleteBtnCaption={setDeleteBtnCaption}
-                />
+                            }}
+                        >{deleteBtnCaption}</Button>
+                        <Button colorScheme="blue">Modifică student</Button>
+                        {signUpFormShow && 
+                            <StudentForm 
+                                callback={setSignUpFormShow}
+                                students={students}
+                                setStudents={setStudents}
+                                />}
+                    </HStack>
+                    <StudentsTable
+                        students={students}
+                        columns={tableColumns}
+                        deleteStudents={deleteStudents}
+                        setDeleteStudents={setDeleteStudents}
+                        deleteState={deleteState}
+                        setDeleteState={setDeleteState}
+                        setDeleteBtnCaption={setDeleteBtnCaption}
+                    />
+                </RightSlideAnimation>
             }
         </VStack>
     );
