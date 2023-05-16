@@ -9,6 +9,7 @@ import { TimetablesView } from "./TimetablesView";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 import { User } from "firebase/auth";
+import { CatalogView } from "./CatalogView";
 
 const AdminPanel: React.FC = () => {
     const generateSelectedSection = (view: ViewType) => {
@@ -23,6 +24,8 @@ const AdminPanel: React.FC = () => {
                 return <TicketsView />
             case "timetables":
                 return <TimetablesView />
+            case "catalog":
+                return <CatalogView />
         }
         return <></>;
     }

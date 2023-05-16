@@ -6,6 +6,7 @@ export type ViewType =
     "settings" |
     "timetables" |
     "tickets" |
+    "catalog" |
     null;
 
 export const RenderPageContext = React.createContext<ViewType>(null);
