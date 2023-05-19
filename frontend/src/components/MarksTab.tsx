@@ -18,8 +18,8 @@ import {
 } from "react";
 
 import { Subject } from "./SubjectsTab";
-import { Timestamp, addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../Firebase";
+import { Timestamp, addDoc, collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
+import { db, fb } from "../Firebase";
 import { Student } from "./StudentsView";
 import { GenericAlert } from "./GenericAlert";
 import { AnimatePresence } from "framer-motion";
@@ -47,13 +47,32 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
     const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSubject(e.target.value);
     const handleMarkChange = (e: React.ChangeEvent<HTMLSelectElement>) => setMark(+e.target.value);
     const handleClick = (_ : any) => {
+        const currentTimestamp = Timestamp.fromDate(new Date());
+
+        const q = query(collection(db, "/catalog"),
+            where("name", "==", name),
+            where("surname", "==", surname),
+            where("subject", "==", subject),
+            where("timestamp", "<", currentTimestamp)
+        );
+        
+        try {
+            getDocs(q).then(docs => 
+                docs.forEach(async (doc) => await deleteDoc(doc.ref)));
+        }
+        catch {
+            errorCallback();
+            setTimeout(() => errorCallback(), 2500);
+            return;
+        }
+
         addDoc(collection(db, "/catalog"), {
             subject: subject,
             mark: mark,
             name: name,
             surname: surname,
             year: year,
-            timestamp: Timestamp.fromDate(new Date())
+            timestamp: currentTimestamp
         })
         .then(_ => successCallback())
         .then(_ => setTimeout(() => successCallback(), 2500))
