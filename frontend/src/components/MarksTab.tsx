@@ -6,6 +6,9 @@ import {
     Box,
     Button,
     HStack,
+    Input,
+    InputGroup,
+    InputLeftAddon,
     Select,
     TabPanel,
     VStack,
@@ -15,6 +18,7 @@ import {
 import { 
     useState,
     useEffect,
+    useRef,
 } from "react";
 
 import { Subject } from "./SubjectsTab";
@@ -120,6 +124,8 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
     const [students, setStudents] = useState<Array<Student>>([]);
     const [successState, setSuccess] = useBoolean();
     const [errorState, setError] = useBoolean();
+    const [filter, setFilter] = useState<string>("");
+    const studentsRef = useRef<Array<Student>>([]);
 
     useEffect(() => {
         const subjectDocs = query(collection(db, "/materii"), where("year", "==", props.year));
@@ -131,8 +137,18 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
             .then(_ => setSubjects(currentSubjects));
         getDocs(studentsDocs)
             .then(docs => docs.forEach(doc => currentStudents.push(doc.data() as Student)))
-            .then(_ => setStudents(currentStudents)); 
+            .then(_ => setStudents(currentStudents))
+            .then(_ => studentsRef.current = currentStudents); 
     }, []);
+
+    useEffect(() => {
+        if (filter === "") {
+            setStudents(studentsRef.current);
+            return;
+        }
+        setStudents(studentsRef.current.filter(s => 
+            `${s.name} ${s.surname}`.toLowerCase().match(filter.toLowerCase())));
+    }, [filter]);
 
     return (
         // @ts-ignore
@@ -142,7 +158,20 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
                 {errorState && <GenericAlert type="error" message="A apărut o problemă la adăugare"/>}
             </AnimatePresence>
             <VStack>
-                <Accordion w={"100%"} bg={"#fff"} borderRadius={"10px"}>
+                <InputGroup
+                    border={3}
+                    display={"flex"}
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                >
+                    <InputLeftAddon children="Nume"/>
+                    <Input
+                        placeholder="Căutare"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
+                </InputGroup>
+                <Accordion w={"100%"} bg={"#fff"} maxH={"80%"} borderRadius={"10px"}>
                     {students.map((stud, idx) => 
                         <StudentItem 
                             key={`stud${idx}`} 

@@ -12,7 +12,14 @@ export const CatalogView: React.FC = () => {
     return (
         // @ts-ignore
         <VStack>
-            <Tabs isFitted w="100%" variant="enclosed-colored">
+            <Tabs
+                isFitted
+                w="100%"
+                h="80vh"
+                variant="enclosed-colored"
+                bg="#fff"
+                overflow={"scroll"}
+            >
                 <TabList>
                     <Tab>Note</Tab>
                     <Tab>Materii</Tab>
