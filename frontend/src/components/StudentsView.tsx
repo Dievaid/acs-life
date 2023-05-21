@@ -1,6 +1,7 @@
 import {
     Button,
     HStack,
+    Input,
     VStack,
 } from "@chakra-ui/react";
 import { StudentsTable } from "./StudentsTable";
@@ -47,6 +48,7 @@ export const StudentsView: React.FC = () => {
 
     const [deleteBtnCaption, setDeleteBtnCaption] = useState<string>("Șterge studenți");
     const [updateBtnCaption, setUpdateBtnCaption] = useState<string>("Modifică studenți");
+    const [filter, setFilter] = useState<string>("");
 
     const fetchStudents = () => {
         let students: Array<Student> = [];
@@ -135,6 +137,12 @@ export const StudentsView: React.FC = () => {
                         >
                             {updateBtnCaption}
                         </Button>
+                        <Input
+                            placeholder="Căutare"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            maxW="20%"
+                        />
                         {signUpFormShow && 
                             <StudentForm 
                                 callback={setSignUpFormShow}
@@ -144,7 +152,13 @@ export const StudentsView: React.FC = () => {
                     </HStack>
                     <updateStudentsContext.Provider value={shouldUpdateData}>
                         <StudentsTable
-                            students={students}
+                            students={filter === "" ?
+                                students : 
+                                students.filter(s => 
+                                    `${s.name} ${s.surname}`.toLowerCase()
+                                        .match(filter.toLowerCase())
+                                )
+                            }
                             columns={tableColumns}
                             deleteStudents={deleteStudents}
                             setDeleteStudents={setDeleteStudents}
