@@ -108,6 +108,10 @@ const StudentNode : React.FC<StudentNodeProps> = (props) => {
         }
     }, [shouldUpdateData]);
 
+    useEffect(() => {
+        setEditStudent(student);
+    }, [student])
+
     return (
         // @ts-ignore
         <Tr key={idx} onClick={() => {
@@ -140,7 +144,8 @@ export const StudentsTable: React.FC<StudentsTableProps> = (props: StudentsTable
 
     const renderStudents = (students: Array<Student>, deleteState: boolean, updateState: boolean) => {
         return students.map((student, idx) => 
-            <StudentNode 
+            <StudentNode
+                key={`sn_${idx}`} 
                 idx={idx} 
                 deleteStudents={props.deleteStudents} 
                 setDeleteStudents={props.setDeleteStudents}

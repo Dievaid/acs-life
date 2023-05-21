@@ -34,11 +34,8 @@ export const StudentForm: React.FC<FormProps> = (props) => {
         onSubmit: values => {
             console.log(values);
             addDoc(collection(db, "/studenti"), values)
-                .then(_ => console.log(values))
                 .then(_ => {
-                    let copyStudents: Array<Student> = [...props.students];
-                    copyStudents.push(values);
-                    props.setStudents(copyStudents);
+                    props.setStudents([...props.students, values]);
                 })
                 .then(_ => props.callback(false))
                 .catch(err => console.error(err));
