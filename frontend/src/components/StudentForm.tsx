@@ -2,15 +2,22 @@ import {
     Button,
     CloseButton,
     Input,
-    VStack
+    VStack,
+    useForceUpdate
 } from "@chakra-ui/react";
 
 import "../stylesheets/StudentForm.css";
 import { useFormik } from "formik";
 import { Student } from "./StudentsView";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../Firebase";
+import { auth, db } from "../Firebase";
 import { FadeInAnimation } from "../animations/FadeInAnimation";
+import { 
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail
+} from "firebase/auth";
+import { useContext } from "react";
+import { SecretaryContext } from "./AuthProvider";
 
 interface FormProps {
     callback: (value: any) => void;
@@ -19,11 +26,14 @@ interface FormProps {
 }
 
 export const StudentForm: React.FC<FormProps> = (props) => {
+    const update = useForceUpdate();
+    const secretary = useContext(SecretaryContext);
+
     const formik = useFormik<Student>({
         initialValues: {
             class: '',
             cnp: '',
-            currentYear: 1,
+            currentYear: secretary === null ? 0 : secretary.year_resp,
             email: '',
             group: '',
             name: '',
@@ -32,10 +42,18 @@ export const StudentForm: React.FC<FormProps> = (props) => {
             srcPhoto: 'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'
         },
         onSubmit: values => {
-            console.log(values);
+            if (process.env.REACT_APP_STUD_ACC === "true") {
+                createUserWithEmailAndPassword(
+                    auth,
+                    values.email,
+                    Math.random().toString(36).slice(-8) //! random password
+                ).then(async _ =>  await sendPasswordResetEmail(auth, values.email))
+            }
+
             addDoc(collection(db, "/studenti"), values)
                 .then(_ => {
                     props.setStudents([...props.students, values]);
+                    update();
                 })
                 .then(_ => props.callback(false))
                 .catch(err => console.error(err));
@@ -53,10 +71,10 @@ export const StudentForm: React.FC<FormProps> = (props) => {
                     <Input id="cnp" placeholder="CNP" value={formik.values.cnp} onChange={formik.handleChange}></Input>
                     <Input id="phone" placeholder="Telefon" value={formik.values.phone} onChange={formik.handleChange}></Input>
                     <Input id="email" placeholder="Email" value={formik.values.email} onChange={formik.handleChange}></Input>
-                    <Input id="currentYear" placeholder="An" value={formik.values.currentYear} onChange={formik.handleChange}></Input>
+                    <Input id="currentYear" placeholder="An" value={formik.values.currentYear}></Input>
                     <Input id="class" placeholder="Grupa" value={formik.values.class} onChange={formik.handleChange}></Input>
                     <Input id="group" placeholder="Serie" value={formik.values.group} onChange={formik.handleChange}></Input>
-                    <Button type="submit">Înscrie student</Button>
+                    <Button isDisabled={formik.values.currentYear === 0} type="submit">Înscrie student</Button>
                     <CloseButton onClick={() => props.callback(false)}/>
                 </VStack>
                 </form>

@@ -158,7 +158,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = (props: StudentsTable
 
     return (
         // @ts-ignore
-        <TableContainer minW={'90%'} pt={5} maxH={'95%'}>
+        <TableContainer w={'100%'} pt={5} h={'100%'}>
             <Table variant='simple' 
                 borderColor={props.deleteState ? "#FB6A5E" : props.updateState ? "#2b6cb0" : ""} 
                 borderWidth={"2px"}

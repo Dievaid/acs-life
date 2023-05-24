@@ -7,11 +7,12 @@ import {
 import { StudentsTable } from "./StudentsTable";
 import { collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../Firebase";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WiFiLoader } from "./WiFiLoader";
 import { StudentForm } from "./StudentForm";
 import { RightSlideAnimation } from "../animations/RightSlideAnimation";
 import { updateStudentsContext } from "./Contexts";
+import { SecretaryContext } from "./AuthProvider";
 
 export interface Student {
     class: string,
@@ -36,7 +37,9 @@ const tableColumns: Array<String> = [
 ];
 
 export const StudentsView: React.FC = () => {
-    const studentsQuery = query(collection(db, "studenti"));
+    const secretary = useContext(SecretaryContext);
+    const studentsQuery = query(collection(db, "studenti"), 
+        where("currentYear", "==", secretary?.year_resp));
 
     const [students, setStudents] = useState<Array<Student>>([]);
     const [deleteStudents, setDeleteStudents] = useState<Array<Student>>([]);
@@ -93,10 +96,10 @@ export const StudentsView: React.FC = () => {
 
     return (
         // @ts-ignore
-        <VStack>
+        <VStack h={"100%"} overflow={"scroll"}>
             {isLoading && <WiFiLoader />}
             {!isLoading &&
-                <RightSlideAnimation duration={1} width={"90%"}>
+                <RightSlideAnimation duration={1} width={"90%"} height={"100%"}>
                     {/* @ts-ignore */}
                     <HStack width={'100%'} justifyContent={"space-evenly"} pt={5}>
                         <Button 

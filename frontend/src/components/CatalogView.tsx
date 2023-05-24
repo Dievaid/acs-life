@@ -7,8 +7,12 @@ import {
 } from "@chakra-ui/react";
 import { SubjectsTab } from "./SubjectsTab";
 import { MarksTab } from "./MarksTab";
+import { useContext } from "react";
+import { SecretaryContext } from "./AuthProvider";
 
 export const CatalogView: React.FC = () => {
+    const secretary = useContext(SecretaryContext);
+
     return (
         // @ts-ignore
         <VStack>
@@ -25,8 +29,8 @@ export const CatalogView: React.FC = () => {
                     <Tab>Materii</Tab>
                 </TabList>
                 <TabPanels>
-                    <MarksTab year={1}/>
-                    <SubjectsTab year={1}/>
+                    <MarksTab year={secretary === null ? 0 : secretary.year_resp}/>
+                    <SubjectsTab year={secretary === null ? 0 : secretary.year_resp}/>
                 </TabPanels>
             </Tabs>
         </VStack>
