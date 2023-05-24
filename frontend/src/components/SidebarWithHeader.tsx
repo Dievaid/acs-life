@@ -47,6 +47,10 @@ import {
   BsFillPeopleFill
 } from 'react-icons/bs';
 
+import {
+  GrCatalog
+} from 'react-icons/gr';
+
 import { IconType } from 'react-icons';
 import { AuthContext } from './AuthProvider';
 import { auth, db } from '../Firebase';
@@ -108,7 +112,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     { name: 'Orare', icon: FaCalendarAlt, callback: () => setView("timetables") },
     { name: 'Studenți', icon: BsFillPeopleFill, callback: () => setView("students") },
     { name: 'Tichete', icon: FaTicketAlt, callback: () => setView("tickets") },
-    { name: 'Setări', icon: FiSettings, callback: () => setView("settings") },
+    { name: 'Catalog', icon: GrCatalog, callback: () => setView('catalog') },
   ];
 
   return (
@@ -177,6 +181,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const [userName, setUserName] = useState<string>("");
   const [imgUrl, setImgUrl] = useState<string>("");
   const authData = useContext(AuthContext);
+  const setView = useContext(SetPageContext);
   useEffect(() => {
     if (authData?.email) {
       const queryUserData = query(collection(db, "secretari"),
@@ -254,7 +259,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <MenuList
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}>
-              <MenuItem>Profil</MenuItem>
+              <MenuItem
+                onClick={() => setView('settings')}>
+                Profil
+              </MenuItem>
               <MenuDivider />
               <MenuItem
                 onClick={() => {
