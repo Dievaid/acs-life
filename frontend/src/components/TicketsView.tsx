@@ -1,6 +1,5 @@
 import {
-    VStack,
-    Text
+    VStack
 } from "@chakra-ui/react";
 
 import { Ticket, TicketProps } from "../components/ticket/Ticket";
@@ -28,7 +27,7 @@ export const TicketsView: React.FC = () => {
             .then(_ => setTickets(fetchedTickets));
     }, []);
 
-    
+
 
     const renderTickets = () => {
         return tickets.map((t, idx) =>
@@ -46,26 +45,7 @@ export const TicketsView: React.FC = () => {
     return (
         // @ts-ignore
         <VStack>
-            <Text>Tickets page</Text>
             {renderTickets()}
-            {/* <Ticket 
-            author="catalin ioan balea"
-            message="plm"
-            title="big problem"
-            status={true}
-            date={new Date()}/>
-            <Ticket 
-            author="cata"
-            message="sprijinul celor de la Bitdefender, vom organiza pe data de 20 mai 2023 un hackathon în format fizic destinat studenților de la SO. Hackathon-ul se va desfășura în echipe de 2 studenți (ambii de la SO) și va presupune rezolvarea unui exercițiu folosind informațiile acumulate de-a lungul cursurilor și laboratoarelor de SO. Subiectul propus este din zona sistemelor de operare, deci rezolvările necesită conceptele și API-urile învățate la SO."
-            title="big problem"
-            status={true}
-            date={new Date()}/>
-            <Ticket 
-            author="cata"
-            message="plm"
-            title="big problem"
-            status={true}
-            date={new Date()}/> */}
         </VStack>
     );
 }
