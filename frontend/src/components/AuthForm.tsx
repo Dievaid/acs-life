@@ -6,12 +6,17 @@ import {
     Input, 
     VStack,
     CloseButton,
-    Text
+    Text,
+    useBoolean,
+    useForceUpdate,
 } from "@chakra-ui/react";
 
-import { useContext, useEffect, useState } from "react";
-
-import emailjs from "emailjs-com";
+import {
+    useContext,
+    useEffect,
+    useRef,
+    useState
+} from "react";
 
 import "../stylesheets/AuthForm.css";
 import { mainPageContext } from "./Contexts";
@@ -19,6 +24,8 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "../Firebase";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
 
 const validateEmail = (email: string) => {
     // eslint-disable-next-line
@@ -26,28 +33,51 @@ const validateEmail = (email: string) => {
 }
 
 const AuthForm: React.FC = () => {
+    const url: string = "https://email-server-unv4.onrender.com";
+
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isValidEmail, setValidEmail] = useState<boolean>(false);
     const [isDataInvalid, setDataInvalid] = useState<boolean>(false);
+
+    const [loginPressed, setLoginPressed] = useBoolean();
     
-    let otp: string = ""
+    const otpRef = useRef<any>(null);
+    const otpReady = useRef<boolean>(false);
+
+    const update = useForceUpdate();
 
     const sendCodeTo = (email: string) => {
-        let otp_code = new String(Math.floor(100000 + Math.random() * 100000));
-        let data = {
-            user_email: email,
-            otp_code: otp_code
-        }
-        console.log(otp_code.toString());
-        otp = otp_code.toString();
-        return emailjs.send("service_gkhhhwj","template_quufkg5", data, "HBgT6C9tOLxagn0Cz");
+        const dto = {email: email};
+        return axios.post(`${url}/get-otp`, dto);
+    }
+
+    const validateCode = (email: string, otp: string) => {
+        const dto = {email: email, otp: otp};
+        return axios.post(`${url}/verify-otp`, dto);
+    }
+
+    const awaitInput = () => {
+        return new Promise<any>((resolve) => {
+            const checkCondition = () => {
+                if (otpReady.current) {
+                    const data = {email: email, otp: otpRef.current.value};
+                    resolve(data);
+                } else {
+                    setTimeout(checkCondition);
+                }
+            }
+            checkCondition();
+        });
     }
 
     const setFormAppearance = useContext(mainPageContext);
     const navigate = useNavigate();
 
     const login = () => {
+        if (process.env.REACT_APP_DISABLE_OTP === "false") {
+            setLoginPressed.on();
+        }
         const q = query(collection(db, "/secretari"), where("email", "==", email));
         getDocs(q).then(snap => {
             if (snap.empty) {
@@ -62,12 +92,14 @@ const AuthForm: React.FC = () => {
                         navigate("/admin-panel");
                         return;
                     }
-                    sendCodeTo(email).then(_ => {
-                        let input_code = prompt("Tastează codul primit pe email");
-                        if (input_code === otp) { 
+                    sendCodeTo(email).then(async () => {
+                        const data = await awaitInput();
+                        const result = await validateCode(data.email, data.otp);
+
+                        if (result.data.status === "success") {
                             navigate("/admin-panel");
                         } else {
-                            throw Error(`OTP greșit`);
+                            throw Error("OTP greșit");
                         }
                     }).catch(err=> {
                         console.error(err);
@@ -88,44 +120,70 @@ const AuthForm: React.FC = () => {
 
     return (
         // @ts-ignore
-        <Container className="form" maxW='30vw' minW='170px' minH='350px'>
+        <Container className="form" maxW='30vw' minW='170px' h='350px' overflow="hidden">
             <CloseButton 
                 className="closeBtn"
                 onClick={() => setFormAppearance(false)}
-            /> 
-            <FormControl isInvalid={!isValidEmail}>
-                <VStack spacing={6}>
-                    <FormLabel>Email</FormLabel>
-                    <Input
-                        type='email'
-                        value={email} 
-                        onChange={(e) => {
-                            e.preventDefault();
-                            setEmail(e.target.value);
-                            setDataInvalid(false);
-                        }}
-                    />
-                    <FormLabel>Parola</FormLabel>
-                    <Input
-                        type='password'
-                        value={password}
-                        onChange={(e) => {
-                            e.preventDefault();
-                            setPassword(e.target.value);
-                            setDataInvalid(false);
-                        }}
-                    />
-                    <Button 
-                        disabled={!isValidEmail}
-                        variant='solid'
-                        colorScheme='facebook'
-                        onClick={login}
-                    >
-                        Autentificare
-                    </Button>
-                    {isDataInvalid && <Text pb={5} color={"red"}>Datele introduse sunt invalide</Text>}
-                </VStack>
-            </FormControl>
+            />            
+            <AnimatePresence>
+                {!loginPressed && 
+                <motion.div
+                    key={"id_form"}
+                    initial={{opacity: 0, y: 100}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: loginPressed ? 0.5 : 1}}
+                    exit={{opacity: 0, y: -50}}
+                >
+                    <FormControl isInvalid={!isValidEmail}>
+                        <VStack spacing={6}>
+                            <FormLabel>Email</FormLabel>
+                            <Input
+                                type='email'
+                                value={email} 
+                                onChange={(e) => {
+                                    e.preventDefault();
+                                    setEmail(e.target.value);
+                                    setDataInvalid(false);
+                                }}
+                            />
+                            <FormLabel>Parola</FormLabel>
+                            <Input
+                                type='password'
+                                value={password}
+                                onChange={(e) => {
+                                    e.preventDefault();
+                                    setPassword(e.target.value);
+                                    setDataInvalid(false);
+                                }}
+                            />
+                            <Button 
+                                disabled={!isValidEmail}
+                                variant='solid'
+                                colorScheme='facebook'
+                                isLoading={loginPressed}
+                                onClick={login}
+                            >
+                                Autentificare
+                            </Button>
+                            {isDataInvalid && <Text pb={5} color={"red"}>Datele introduse sunt invalide</Text>}
+                        </VStack>
+                    </FormControl>
+                </motion.div>}
+                {(loginPressed !== isDataInvalid) &&
+                <motion.div
+                    key={"id_otp"}
+                    initial={{opacity: 0, y: 100}}
+                    animate={{opacity: 1, y: 50}}
+                    transition={{duration: 1, delay: 0.5}}
+                    exit={{opacity: 0, y: -50}}
+                >
+                    <VStack spacing={6}>
+                        <FormLabel>Cod otp</FormLabel>
+                        <Input ref={otpRef}/>
+                        <Button onClick={() => otpReady.current = true}>Trimite cod</Button>
+                    </VStack>
+                </motion.div>}
+            </AnimatePresence>
         </Container>
     );
 }
