@@ -16,8 +16,9 @@ import emailjs from "emailjs-com";
 import "../stylesheets/AuthForm.css";
 import { mainPageContext } from "./Contexts";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth } from "../Firebase";
+import { auth, db } from "../Firebase";
 import { useNavigate } from "react-router-dom";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const validateEmail = (email: string) => {
     // eslint-disable-next-line
@@ -47,28 +48,38 @@ const AuthForm: React.FC = () => {
     const navigate = useNavigate();
 
     const login = () => {
-        signInWithEmailAndPassword(auth, email, password)
-            .then(_ => {
-                if (process.env.REACT_APP_DISABLE_OTP) {
-                    navigate("/admin-panel");
-                    return;
-                }
-                sendCodeTo(email).then(_ => {
-                    let input_code = prompt("Tastează codul primit pe email");
-                    if (input_code === otp) { 
-                        navigate("/admin-panel");
-                    } else {
-                        throw Error(`OTP greșit`);
-                    }
-                }).catch(err=> {
-                    console.error(err);
-                    signOut(auth);
-                });
-            })
-            .catch(err => {
-                console.error(err);
+        const q = query(collection(db, "/secretari"), where("email", "==", email));
+        getDocs(q).then(snap => {
+            if (snap.empty) {
                 setDataInvalid(true);
-            });
+                throw Error("Email negăsit");
+            }
+        })
+        .then(_ => {
+            signInWithEmailAndPassword(auth, email, password)
+                .then(_ => {
+                    if (process.env.REACT_APP_DISABLE_OTP === "true") {
+                        navigate("/admin-panel");
+                        return;
+                    }
+                    sendCodeTo(email).then(_ => {
+                        let input_code = prompt("Tastează codul primit pe email");
+                        if (input_code === otp) { 
+                            navigate("/admin-panel");
+                        } else {
+                            throw Error(`OTP greșit`);
+                        }
+                    }).catch(err=> {
+                        console.error(err);
+                        signOut(auth);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    setDataInvalid(true);
+                });
+            }
+        )
     }
     
     useEffect(() => {

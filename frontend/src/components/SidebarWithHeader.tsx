@@ -57,6 +57,7 @@ import { auth, db } from '../Firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { SetPageContext } from './Contexts';
+import { useNavigate } from 'react-router-dom';
 
 interface LinkItemProps {
   name: string;
@@ -182,6 +183,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const [imgUrl, setImgUrl] = useState<string>("");
   const authData = useContext(AuthContext);
   const setView = useContext(SetPageContext);
+  const navigate = useNavigate();
   useEffect(() => {
     if (authData?.email) {
       const queryUserData = query(collection(db, "secretari"),
@@ -267,7 +269,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuItem
                 onClick={() => {
                   signOut(auth);
-                  window.location.replace("/");
+                  navigate("/");
                 }}
               >
                 Deconectează-te

@@ -21,7 +21,7 @@ const MainPageContent: React.FC = () => {
     const btnSetState = useContext(mainPageContext);
 
     useEffect(() => {
-        if (process.env.REACT_APP_DISABLE_QUOTES) {
+        if (process.env.REACT_APP_DISABLE_QUOTES === "true") {
             setQuote("There is no day better than tomorrow");
             setTimeout(() => setLoading(false), 1000);
             return () => {};
