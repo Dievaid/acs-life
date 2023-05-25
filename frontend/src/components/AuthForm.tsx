@@ -8,7 +8,6 @@ import {
     CloseButton,
     Text,
     useBoolean,
-    useForceUpdate,
 } from "@chakra-ui/react";
 
 import {
@@ -45,8 +44,6 @@ const AuthForm: React.FC = () => {
     const otpRef = useRef<any>(null);
     const otpReady = useRef<boolean>(false);
 
-    const update = useForceUpdate();
-
     const sendCodeTo = (email: string) => {
         const dto = {email: email};
         return axios.post(`${url}/get-otp`, dto);
@@ -82,6 +79,7 @@ const AuthForm: React.FC = () => {
         getDocs(q).then(snap => {
             if (snap.empty) {
                 setDataInvalid(true);
+                setLoginPressed.off();
                 throw Error("Email negăsit");
             }
         })
@@ -109,6 +107,7 @@ const AuthForm: React.FC = () => {
                 .catch(err => {
                     console.error(err);
                     setDataInvalid(true);
+                    setLoginPressed.off();
                 });
             }
         )
@@ -135,7 +134,7 @@ const AuthForm: React.FC = () => {
                     exit={{opacity: 0, y: -50}}
                 >
                     <FormControl isInvalid={!isValidEmail}>
-                        <VStack spacing={6}>
+                        <VStack spacing={4}>
                             <FormLabel>Email</FormLabel>
                             <Input
                                 type='email'
