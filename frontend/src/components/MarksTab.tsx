@@ -1,6 +1,7 @@
 import {
     Accordion,
     AccordionButton,
+    AccordionIcon,
     AccordionItem,
     AccordionPanel,
     Box,
@@ -22,8 +23,16 @@ import {
 } from "react";
 
 import { Subject } from "./SubjectsTab";
-import { Timestamp, addDoc, collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
-import { db, fb } from "../Firebase";
+import { 
+    Timestamp,
+    addDoc,
+    collection,
+    deleteDoc,
+    getDocs,
+    query,
+    where
+} from "firebase/firestore";
+import { db } from "../Firebase";
 import { Student } from "./StudentsView";
 import { GenericAlert } from "./GenericAlert";
 import { AnimatePresence } from "framer-motion";
@@ -92,6 +101,7 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
             <h2>
                 <AccordionButton>
                     <Box fontWeight={550} flex={1}>{`${name} ${surname}`}</Box>
+                    <AccordionIcon />
                 </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
@@ -171,7 +181,7 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
                         onChange={(e) => setFilter(e.target.value)}
                     />
                 </InputGroup>
-                <Accordion w={"100%"} bg={"#fff"} maxH={"80%"} borderRadius={"10px"}>
+                <Accordion w={"100%"} bg={"#fff"} maxH={"80%"} borderRadius={"10px"} allowToggle>
                     {students.map((stud, idx) => 
                         <StudentItem 
                             key={`stud${idx}`} 
