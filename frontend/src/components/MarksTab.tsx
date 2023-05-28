@@ -42,8 +42,7 @@ interface MarkProps {
 }
 
 interface StudentItemProps {
-    name: string,
-    surname: string,
+    student: Student,
     year: number,
     subjects: Array<Subject>,
     successCallback: () => void,
@@ -51,7 +50,7 @@ interface StudentItemProps {
 }
 
 const StudentItem: React.FC<StudentItemProps> = (props) => {
-    const { subjects, name, surname, year, successCallback, errorCallback } = props;
+    const { subjects, student, year, successCallback, errorCallback } = props;
     const marks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     const [subject, setSubject] = useState<string>("");
@@ -63,8 +62,9 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         const currentTimestamp = Timestamp.fromDate(new Date());
 
         const q = query(collection(db, "/catalog"),
-            where("name", "==", name),
-            where("surname", "==", surname),
+            where("name", "==", student.name),
+            where("surname", "==", student.surname),
+            where("email", "==", student.email),
             where("subject", "==", subject),
             where("timestamp", "<", currentTimestamp)
         );
@@ -82,8 +82,9 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         addDoc(collection(db, "/catalog"), {
             subject: subject,
             mark: mark,
-            name: name,
-            surname: surname,
+            name: student.name,
+            surname: student.surname,
+            email: student.email,
             year: year,
             timestamp: currentTimestamp
         })
@@ -100,7 +101,7 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         <AccordionItem>
             <h2>
                 <AccordionButton>
-                    <Box fontWeight={550} flex={1}>{`${name} ${surname}`}</Box>
+                    <Box fontWeight={550} flex={1}>{`${student.name} ${student.surname}`}</Box>
                     <AccordionIcon />
                 </AccordionButton>
             </h2>
@@ -185,8 +186,7 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
                     {students.map((stud, idx) => 
                         <StudentItem 
                             key={`stud${idx}`} 
-                            name={stud.name}
-                            surname={stud.surname}
+                            student={stud}
                             year={props.year} 
                             subjects={subjects}
                             successCallback={setSuccess.toggle}
