@@ -9,8 +9,6 @@ import {
     AccordionPanel,
     AccordionIcon,
     Button,
-
-
 } from '@chakra-ui/react';
 
 import { useState } from "react";
@@ -51,7 +49,7 @@ export const Ticket: React.FC<TicketProps> = (props) => {
             width="100%"
         >
             <AccordionItem
-                boxShadow='lg'
+                dropShadow='lg'
                 rounded='2xl'
                 width="100%"
                 bg='#89CFF0'
@@ -62,7 +60,7 @@ export const Ticket: React.FC<TicketProps> = (props) => {
                             width={"100%"}
                             spacing={"40px"}
                         >
-                            <Box w='50%'
+                            <Box w='40%'
                                 h='100%'
                                 rounded='md'
                                 bg='white'
@@ -81,7 +79,7 @@ export const Ticket: React.FC<TicketProps> = (props) => {
                             >
                                 {props.author}
                             </Box>
-                            <Box w='15%'
+                            <Box w='20%'
                                 h='100%'
                                 bg='white'
                                 rounded='md'
@@ -120,7 +118,7 @@ export const Ticket: React.FC<TicketProps> = (props) => {
 
                         alignSelf={"center"}
                     >
-                        Finished
+                        Finalizează
                     </Button>
                 </AccordionPanel>
             </AccordionItem>

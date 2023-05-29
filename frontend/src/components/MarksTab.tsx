@@ -1,6 +1,7 @@
 import {
     Accordion,
     AccordionButton,
+    AccordionIcon,
     AccordionItem,
     AccordionPanel,
     Box,
@@ -22,8 +23,16 @@ import {
 } from "react";
 
 import { Subject } from "./SubjectsTab";
-import { Timestamp, addDoc, collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
-import { db, fb } from "../Firebase";
+import { 
+    Timestamp,
+    addDoc,
+    collection,
+    deleteDoc,
+    getDocs,
+    query,
+    where
+} from "firebase/firestore";
+import { db } from "../Firebase";
 import { Student } from "./StudentsView";
 import { GenericAlert } from "./GenericAlert";
 import { AnimatePresence } from "framer-motion";
@@ -33,8 +42,7 @@ interface MarkProps {
 }
 
 interface StudentItemProps {
-    name: string,
-    surname: string,
+    student: Student,
     year: number,
     subjects: Array<Subject>,
     successCallback: () => void,
@@ -42,7 +50,7 @@ interface StudentItemProps {
 }
 
 const StudentItem: React.FC<StudentItemProps> = (props) => {
-    const { subjects, name, surname, year, successCallback, errorCallback } = props;
+    const { subjects, student, year, successCallback, errorCallback } = props;
     const marks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     const [subject, setSubject] = useState<string>("");
@@ -54,8 +62,9 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         const currentTimestamp = Timestamp.fromDate(new Date());
 
         const q = query(collection(db, "/catalog"),
-            where("name", "==", name),
-            where("surname", "==", surname),
+            where("name", "==", student.name),
+            where("surname", "==", student.surname),
+            where("email", "==", student.email),
             where("subject", "==", subject),
             where("timestamp", "<", currentTimestamp)
         );
@@ -73,8 +82,9 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         addDoc(collection(db, "/catalog"), {
             subject: subject,
             mark: mark,
-            name: name,
-            surname: surname,
+            name: student.name,
+            surname: student.surname,
+            email: student.email,
             year: year,
             timestamp: currentTimestamp
         })
@@ -91,7 +101,8 @@ const StudentItem: React.FC<StudentItemProps> = (props) => {
         <AccordionItem>
             <h2>
                 <AccordionButton>
-                    <Box fontWeight={550} flex={1}>{`${name} ${surname}`}</Box>
+                    <Box fontWeight={550} flex={1}>{`${student.name} ${student.surname}`}</Box>
+                    <AccordionIcon />
                 </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
@@ -171,12 +182,11 @@ export const MarksTab: React.FC<MarkProps> = (props) => {
                         onChange={(e) => setFilter(e.target.value)}
                     />
                 </InputGroup>
-                <Accordion w={"100%"} bg={"#fff"} maxH={"80%"} borderRadius={"10px"}>
+                <Accordion w={"100%"} bg={"#fff"} maxH={"80%"} borderRadius={"10px"} allowToggle>
                     {students.map((stud, idx) => 
                         <StudentItem 
                             key={`stud${idx}`} 
-                            name={stud.name}
-                            surname={stud.surname}
+                            student={stud}
                             year={props.year} 
                             subjects={subjects}
                             successCallback={setSuccess.toggle}
