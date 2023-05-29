@@ -8,11 +8,12 @@ import {
 } from "@chakra-ui/react";
 
 import { Timetable } from "./timetable/Timetable";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "../Firebase";
 import { TimetableForm } from "./timetable/TimetableForm";
 import { Student } from "./StudentsView";
+import { SecretaryContext } from "./AuthProvider";
 
 export type CourseType = "course" | "lab" | "seminar";
 
@@ -33,7 +34,8 @@ interface SubjectData {
 
 
 export const TimetablesView: React.FC = () => {
-    const [year, setYear] = useState<number>(0);
+    const secretary = useContext(SecretaryContext);
+    const year = (secretary == null) ? 0 : secretary?.year_resp;
     const [day, setDay] = useState<number>(0);
     const [series, setSeries] = useState<string>("");
 
@@ -185,20 +187,6 @@ export const TimetablesView: React.FC = () => {
                 width={"100%"}
                 justifyContent={"space-evenly"}
             >
-                <Select
-                    placeholder='Selectati anul'
-                    width={"25%"}
-                    bg='#D3D3D3'
-                    onChange={(e) => {
-                        e.preventDefault();
-                        setYear(+e.target.value);
-                    }}
-                >
-                    <option value={1} >ANUL I</option>
-                    <option value={2}>ANUL II</option>
-                    <option value={3}>ANUL III</option>
-                    <option value={4}>ANUL IV</option>
-                </Select>
                 <Select
                     placeholder='Selectati seria'
                     isDisabled={year === 0}

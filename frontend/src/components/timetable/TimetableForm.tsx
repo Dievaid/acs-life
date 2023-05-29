@@ -32,14 +32,14 @@ export const TimetableForm: React.FC<TimetableFormdata> = (props) => {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = React.useRef(null);
 
-    
+
     const [formSubject, setFormSubject] = useState<string>("");
     const [formClass, setFormClass] = useState<string>("");
     const [formStartHour, setFormStartHour] = useState<number>(0);
     const [formType, setFormType] = useState<string>("");
 
     const pushDataToServer = () => {
-        
+
         let addData: FormData = {
             class: formClass,
             day: props.day,
@@ -156,6 +156,9 @@ export const TimetableForm: React.FC<TimetableFormdata> = (props) => {
                                     setFormClass(e.target.value)
                                 }}
                             >
+                                <option value={"all"}>
+                                    all
+                                </option>
                                 {renderClasses()}
                             </Select>
                             <Box width="100%">

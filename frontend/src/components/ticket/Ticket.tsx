@@ -64,7 +64,7 @@ export const Ticket: React.FC<TicketProps> = (props) => {
                         >
                             <Box w='50%'
                                 h='100%'
-                                rounded='2xl'
+                                rounded='md'
                                 bg='white'
                                 display="flex"
                                 alignItems="center"
@@ -74,17 +74,17 @@ export const Ticket: React.FC<TicketProps> = (props) => {
                             <Box w='20%'
                                 h='100%'
                                 bg='white'
-                                rounded='2xl'
+                                rounded='md'
                                 display="flex"
                                 alignItems="center"
                                 justifyContent="center"
                             >
                                 {props.author}
                             </Box>
-                            <Box w='10%'
+                            <Box w='15%'
                                 h='100%'
                                 bg='white'
-                                rounded='2xl'
+                                rounded='md'
                                 display="flex"
                                 alignItems="center"
                                 justifyContent="center">
