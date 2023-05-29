@@ -3,13 +3,16 @@ import {
     Text,
     HStack,
     Select,
-    Button
+    Button,
+    useForceUpdate
 } from "@chakra-ui/react";
 
 import { Timetable } from "./timetable/Timetable";
 import { useEffect, useRef, useState } from "react";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "../Firebase";
+import { TimetableForm } from "./timetable/TimetableForm";
+import { Student } from "./StudentsView";
 
 export type CourseType = "course" | "lab" | "seminar";
 
@@ -23,29 +26,93 @@ export interface TimetableData {
     year: number
 }
 
+interface SubjectData {
+    subject: string,
+    year: number
+}
+
 
 export const TimetablesView: React.FC = () => {
     const [year, setYear] = useState<number>(0);
     const [day, setDay] = useState<number>(0);
     const [series, setSeries] = useState<string>("");
 
+    const studentsQuery = query(collection(db, "studenti"));
+    const [students, setStudents] = useState<Array<Student>>([]);
+
     const [timetables, setTimetables] = useState<Array<TimetableData>>([]);
     const timetablesQuery = query(collection(db, "orare"));
     const timetablesRef = useRef<Array<TimetableData>>([]);
 
+    const [subjects, setSubjects] = useState<Array<SubjectData>>([]);
+    const subjectsQuery = query(collection(db, "materii"));
+    const subjectsRef = useRef<Array<SubjectData>>([]);
+
+    const [classes, setClasses] = useState<Array<string>>([]);
+
     const yearRef = doc(db, "serii", year.toString());
     const [groups, setGroups] = useState<Array<string>>([]);
 
+    const [nr, setNr] = useState<number>(0);
+    const [disable, setDisable] = useState<boolean>(true);
+
+    const fetchStudents = () => {
+        let students: Array<Student> = [];
+        getDocs(studentsQuery)
+            .then(res => res.forEach(doc => {
+                let data: Student = doc.data() as Student;
+                students.push(data);
+            }))
+            .then(_ => setStudents(students));
+    }
+
+    useEffect(fetchStudents, []);
+
+    useEffect(() => {
+        if (year !== 0 && series !== "") {
+            let filteredStudents: Array<string> = students
+                .filter(s => s.currentYear === year && s.group === series)
+                .map(s => s.class);
+            let uniqueCLasses = new Set(filteredStudents);
+            setClasses(Array.from(uniqueCLasses));
+        }
+    }, [year, series])
+
+    // get serii
     useEffect(() => {
         if (year !== 0) {
             getDoc(yearRef).then(doc => {
                 if (doc.exists()) {
                     setGroups(doc.data().groups as Array<string>)
                 }
-            })
+            });
         }
 
     }, [year]);
+
+    // get subjects
+    useEffect(() => {
+        let fetchedSubjects: Array<SubjectData> = [];
+        getDocs(subjectsQuery)
+            .then(
+                docs => {
+                    docs.forEach(
+                        doc => {
+                            let subject = doc.data() as SubjectData;
+                            fetchedSubjects.push(subject);
+                        }
+                    )
+                }
+            )
+            .then(_ => subjectsRef.current = [...fetchedSubjects]);
+    }, []);
+
+    // filter subjects
+    useEffect(() => {
+        if (year !== 0) {
+            setSubjects(subjectsRef.current.filter(s => s.year === year));
+        }
+    }, [year])
 
     // get data from server
     useEffect(() => {
@@ -59,19 +126,22 @@ export const TimetablesView: React.FC = () => {
                     }
                 )
             })
-            .then(_ => setTimetables(fetchedTimetables))
+            // .then(_ => setTimetables(fetchedTimetables))
             .then(_ => timetablesRef.current = [...fetchedTimetables]);
     }, []);
 
     useEffect(() => {
         if (year === 0 || series === "" || day === 0) {
             setTimetables([]);
+            setDisable(true);
             return;
         }
+        setDisable(false);
         setTimetables(timetablesRef.current.filter(t => t.year === year
             && t.group === series
             && t.day === day));
-    }, [year, series, day]);
+        
+    }, [year, series, day, nr]);
 
     const renderGroups = () => {
         return groups.map((g, idx) =>
@@ -84,11 +154,14 @@ export const TimetablesView: React.FC = () => {
     }
 
     const renderTimetables = () => {
-        return timetables.map((t, idx) =>
+        return Array.from({ length: 6 }, (_, i) => 8 + (i * 2)).map((h,idx) =>
             <Timetable
-                key={`timetable${idx}`}
-                startHour={t.startHour}
-                data={timetables}
+                key={`timetables${idx}`}
+                startHour={h}
+                data={timetables.filter(t => t.startHour === h).sort((t1, t2) => +t1.class - +t2.class)}
+                deleteState = {false}
+                setNr={setNr}
+                timetablesRef={timetablesRef}
             />
         );
     }
@@ -115,7 +188,7 @@ export const TimetablesView: React.FC = () => {
                 <Select
                     placeholder='Selectati anul'
                     width={"25%"}
-                    bg='#A9A9A9'
+                    bg='#D3D3D3'
                     onChange={(e) => {
                         e.preventDefault();
                         setYear(+e.target.value);
@@ -130,7 +203,7 @@ export const TimetablesView: React.FC = () => {
                     placeholder='Selectati seria'
                     isDisabled={year === 0}
                     width={"25%"}
-                    bg='#C0C0C0'
+                    bg='#D3D3D3'
                     onChange={(e) => {
                         e.preventDefault();
                         setSeries(e.target.value)
@@ -159,15 +232,25 @@ export const TimetablesView: React.FC = () => {
                 width={"100%"}
                 justifyContent={"space-evenly"}
             >
+                <TimetableForm
+                    year={year}
+                    group={series}
+                    day={day}
+                    subjects={subjects.map(s => s.subject)}
+                    classes={classes}
+                    isDisabled={disable} 
+                    setTimeTables={setTimetables}
+                    timetables={timetables}
+                    timetablesRef={timetablesRef}
+                    setNr={setNr}
+                    />
                 <Button
-                    colorScheme="green"
-                    width={"15%"}
-                >Adaugare</Button>
-                <Button
+                    isDisabled={disable}
                     colorScheme="blue"
                     width={"15%"}
                 >Modificare</Button>
                 <Button
+                    isDisabled={disable}
                     colorScheme="red"
                     width={"15%"}
                 >Stergere</Button>
