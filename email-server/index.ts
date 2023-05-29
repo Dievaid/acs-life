@@ -56,7 +56,7 @@ const transporter = nodemailer.createTransport({
 
 app.post("/get-otp", async (req, res) => {
     const email: string = req.body.email;
-    const otp = Math.random().toString(36).slice(-8);
+    const otp = (Math.floor(Math.random() * 900000) + 100000).toString();
 
     const deleteIfHashExistsAlready = `DELETE FROM AUTH WHERE email = $1`;
     await client.query(deleteIfHashExistsAlready, [email]);
