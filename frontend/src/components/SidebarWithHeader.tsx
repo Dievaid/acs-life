@@ -2,7 +2,8 @@ import React, {
   ReactNode,
   useEffect,
   useContext,
-  useState
+  useState,
+  useRef
 } from 'react';
 
 import {
@@ -56,7 +57,8 @@ import { AuthContext } from './AuthProvider';
 import { auth, db } from '../Firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { SetPageContext } from './Contexts';
+import { SetPageContext, UserInfo } from './Contexts';
+import { UserDataProvider } from './UserDataProvider';
 import { useNavigate } from 'react-router-dom';
 
 interface LinkItemProps {
@@ -73,6 +75,7 @@ export default function SidebarWithHeader({
   children: ReactNode;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const userDataRef = useRef<UserInfo | null>(null);
 
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
@@ -93,10 +96,12 @@ export default function SidebarWithHeader({
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
-      <MobileNav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 60 }} p="4">
-        {children}
-      </Box>
+      <UserDataProvider userRef={userDataRef}>
+        <MobileNav onOpen={onOpen} userRef={userDataRef}/>
+        <Box ml={{ base: 0, md: 60 }} p="4">
+          {children}
+        </Box>
+      </UserDataProvider>
     </Box>
   );
 }
@@ -177,10 +182,17 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
+  userRef: React.MutableRefObject<UserInfo | null>;
 }
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const MobileNav = ({ onOpen, userRef, ...rest }: MobileProps) => {
   const [userName, setUserName] = useState<string>("");
   const [imgUrl, setImgUrl] = useState<string>("");
+
+  userRef.current = {
+    setName: setUserName,
+    setURL: setImgUrl,
+  };
+
   const authData = useContext(AuthContext);
   const setView = useContext(SetPageContext);
   const navigate = useNavigate();
