@@ -4,16 +4,18 @@ import {
     HStack,
     Select,
     Button,
-    useForceUpdate
+    useForceUpdate,
+    useBoolean
 } from "@chakra-ui/react";
 
 import { Timetable } from "./timetable/Timetable";
 import { useContext, useEffect, useRef, useState } from "react";
-import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../Firebase";
 import { TimetableForm } from "./timetable/TimetableForm";
 import { Student } from "./StudentsView";
 import { SecretaryContext } from "./AuthProvider";
+import { GenericAlert } from "./GenericAlert";
 
 export type CourseType = "course" | "lab" | "seminar";
 
@@ -35,30 +37,34 @@ interface SubjectData {
 
 export const TimetablesView: React.FC = () => {
     const secretary = useContext(SecretaryContext);
-    const year = (secretary == null) ? 0 : secretary?.year_resp;
     const [day, setDay] = useState<number>(0);
     const [series, setSeries] = useState<string>("");
 
-    const studentsQuery = query(collection(db, "studenti"));
     const [students, setStudents] = useState<Array<Student>>([]);
 
     const [timetables, setTimetables] = useState<Array<TimetableData>>([]);
-    const timetablesQuery = query(collection(db, "orare"));
     const timetablesRef = useRef<Array<TimetableData>>([]);
 
     const [subjects, setSubjects] = useState<Array<SubjectData>>([]);
-    const subjectsQuery = query(collection(db, "materii"));
     const subjectsRef = useRef<Array<SubjectData>>([]);
 
     const [classes, setClasses] = useState<Array<string>>([]);
 
-    const yearRef = doc(db, "serii", year.toString());
     const [groups, setGroups] = useState<Array<string>>([]);
 
     const [nr, setNr] = useState<number>(0);
     const [disable, setDisable] = useState<boolean>(true);
 
+    const [year, setYear] = useState<number>(0);
+
+    useEffect(() => {
+        if (secretary) {
+            setYear(secretary.year_resp);
+        }
+    }, [secretary]);
+
     const fetchStudents = () => {
+        const studentsQuery = query(collection(db, "studenti"));
         let students: Array<Student> = [];
         getDocs(studentsQuery)
             .then(res => res.forEach(doc => {
@@ -82,6 +88,7 @@ export const TimetablesView: React.FC = () => {
 
     // get serii
     useEffect(() => {
+        const yearRef = doc(db, "serii", year.toString());
         if (year !== 0) {
             getDoc(yearRef).then(doc => {
                 if (doc.exists()) {
@@ -94,6 +101,7 @@ export const TimetablesView: React.FC = () => {
 
     // get subjects
     useEffect(() => {
+        const subjectsQuery = query(collection(db, "materii"));
         let fetchedSubjects: Array<SubjectData> = [];
         getDocs(subjectsQuery)
             .then(
@@ -107,7 +115,7 @@ export const TimetablesView: React.FC = () => {
                 }
             )
             .then(_ => subjectsRef.current = [...fetchedSubjects]);
-    }, []);
+    }, [year]);
 
     // filter subjects
     useEffect(() => {
@@ -119,6 +127,7 @@ export const TimetablesView: React.FC = () => {
     // get data from server
     useEffect(() => {
         let fetchedTimetables: Array<TimetableData> = [];
+        const timetablesQuery = query(collection(db, "orare"));
         getDocs(timetablesQuery)
             .then(docs => {
                 docs.forEach(
@@ -145,6 +154,9 @@ export const TimetablesView: React.FC = () => {
         
     }, [year, series, day, nr]);
 
+    const [deleteState, setDeleteState] = useBoolean();
+    const [alert, setAlert] = useBoolean();
+
     const renderGroups = () => {
         return groups.map((g, idx) =>
             <option
@@ -161,28 +173,18 @@ export const TimetablesView: React.FC = () => {
                 key={`timetables${idx}`}
                 startHour={h}
                 data={timetables.filter(t => t.startHour === h).sort((t1, t2) => +t1.class - +t2.class)}
-                deleteState = {false}
+                deleteState={deleteState}
                 setNr={setNr}
                 timetablesRef={timetablesRef}
             />
         );
     }
-    useEffect(() => {
-        console.log("year: " + year + "\n");
-    }, [year]);
-    useEffect(() => {
-        console.log("day: " + day + "\n");
-    }, [day]);
-    useEffect(() => {
-        console.log("series: " + series + "\n");
-    }, [series]);
 
     return (
         // @ts-ignore
         <VStack
             spacing={7}
         >
-            <Text>Timetables pageee</Text>
             <HStack
                 width={"100%"}
                 justifyContent={"space-evenly"}
@@ -216,6 +218,7 @@ export const TimetablesView: React.FC = () => {
                     <option value={5}>Vineri</option>
                 </Select>
             </HStack>
+            {alert && <GenericAlert type="info" message="Orice slot apăsat din acest moment va fi șters"/>}
             <HStack
                 width={"100%"}
                 justifyContent={"space-evenly"}
@@ -224,7 +227,7 @@ export const TimetablesView: React.FC = () => {
                     year={year}
                     group={series}
                     day={day}
-                    subjects={subjects.map(s => s.subject)}
+                    subjects={subjects.filter(s => s.year === secretary?.year_resp).map(s => s.subject)}
                     classes={classes}
                     isDisabled={disable} 
                     setTimeTables={setTimetables}
@@ -234,14 +237,16 @@ export const TimetablesView: React.FC = () => {
                     />
                 <Button
                     isDisabled={disable}
-                    colorScheme="blue"
-                    width={"15%"}
-                >Modificare</Button>
-                <Button
-                    isDisabled={disable}
+                    onClick={() => {
+                        setDeleteState.toggle();
+                        if (!alert && !deleteState) {
+                            setAlert.on();
+                            setTimeout(() => setAlert.off(), 3000);
+                        }
+                    }}
                     colorScheme="red"
                     width={"15%"}
-                >Stergere</Button>
+                >{deleteState ? "Ieșire ștergere" : "Ștergere"}</Button>
             </HStack>
             {renderTimetables()}
         </VStack>

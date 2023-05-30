@@ -2,7 +2,7 @@ import React from "react";
 
 import { TimetableData } from "../TimetablesView";
 import { Center, HStack } from "@chakra-ui/react";
-import { collection, deleteDoc, query, where } from "firebase/firestore";
+import { collection, deleteDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../Firebase";
 
 interface TimetableProps {
@@ -29,8 +29,19 @@ export const Timetable: React.FC<TimetableProps> = (props) => {
                 onClick={() => {
                     if (!props.deleteState) return;
                     props.timetablesRef.current = props.timetablesRef.current.filter(tt => tt !== t);
+                    const timetablesQuery = query(collection(db, "orare"),
+                        where("class", "==", t.class),
+                        where("day", "==", t.day),
+                        where("group", "==", t.group),
+                        where("startHour", "==", t.startHour),
+                        where("year", "==", t.year),
+                        where("subject", "==", t.subject),
+                        where("type", "==", t.type)
+                    );
+                    getDocs(timetablesQuery).then(docs => docs.forEach(async doc => {
+                        await deleteDoc(doc.ref);
+                    }));
                     props.setNr((prev) => prev - 1);
-                    // const timetablesQuery = query(collection(db, "orare"), where )
                 }}
             >
                 {t.subject + "(" + t.type + ")" + " " + t.class}
@@ -43,7 +54,6 @@ export const Timetable: React.FC<TimetableProps> = (props) => {
         <HStack
             width={"90%"}
             height={"40px"}
-        // justifyContent={"space-evenly"}
         >
             <Center
                 bg="#A9A9A9"
@@ -51,7 +61,6 @@ export const Timetable: React.FC<TimetableProps> = (props) => {
                 rounded={"md"}
                 width={"10%"}
                 textAlign={"center"}
-            // alignSelf={"flex-start"}
             >
                 {props.startHour + ":00 - " + (props.startHour + 2) + ":00"}
             </Center>

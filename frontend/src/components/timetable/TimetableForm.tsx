@@ -32,7 +32,6 @@ export const TimetableForm: React.FC<TimetableFormdata> = (props) => {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = React.useRef(null);
 
-
     const [formSubject, setFormSubject] = useState<string>("");
     const [formClass, setFormClass] = useState<string>("");
     const [formStartHour, setFormStartHour] = useState<number>(0);
@@ -175,11 +174,11 @@ export const TimetableForm: React.FC<TimetableFormdata> = (props) => {
                                 {renderStartHours()}
                             </Select>
                             <ButtonGroup display='flex' justifyContent='flex-end' spacing={10}>
-                                <Button colorScheme="red">
-                                    Cancel
+                                <Button colorScheme="red" onClick={onClose}>
+                                    Anulare
                                 </Button>
                                 <Button colorScheme='green' onClick={_ => pushDataToServer()}>
-                                    Save
+                                    Salvează
                                 </Button>
                             </ButtonGroup>
 
