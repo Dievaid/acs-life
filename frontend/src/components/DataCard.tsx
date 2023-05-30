@@ -10,6 +10,8 @@ import {
     Box
 } from "@chakra-ui/react";
 
+import CountUp from 'react-countup';
+
 import { IconType } from "react-icons";
 
 interface DataCardProps {
@@ -38,9 +40,12 @@ export const DataCard: React.FC<DataCardProps> = (props: DataCardProps) => {
                             {props.labelStat}
                         </StatLabel>
                         <Flex>
-                            <StatNumber fontSize='lg' fontWeight='bold'>
-                                {props.labelData}
-                            </StatNumber>
+                            {(typeof props.labelData == 'number') ?
+                                <CountUp duration={3} end={props.labelData}/> :
+                                <StatNumber fontSize='lg' fontWeight='bold'>
+                                    {props.labelData}
+                                </StatNumber>
+                            }
                         </Flex>
                     </Stat>
                     <Box

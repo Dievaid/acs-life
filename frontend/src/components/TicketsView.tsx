@@ -30,7 +30,7 @@ export const TicketsView: React.FC = () => {
 
 
     const renderTickets = () => {
-        return tickets.map((t, idx) =>
+        return tickets.sort((t1, t2) => +t2.date.valueOf() - +t1.date.valueOf()).map((t, idx) =>
             <Ticket
                 key={`ticket${idx}`}
                 author={t.author}
